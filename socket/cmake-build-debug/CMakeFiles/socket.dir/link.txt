@@ -1,1 +1,0 @@
-/usr/bin/c++ -g CMakeFiles/socket.dir/Run.cpp.o CMakeFiles/socket.dir/Config.cpp.o CMakeFiles/socket.dir/Server.cpp.o CMakeFiles/socket.dir/SocketInfo.cpp.o CMakeFiles/socket.dir/WinsockEnv.cpp.o -o socket 
