@@ -3,4 +3,4 @@ project(socket)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(socket Run.cpp Config.cpp Server.cpp SocketInfo.cpp WinsockEnv.cpp)
+add_executable(socket config.cpp server.cpp SocketInfo.cpp cmake-build-debug/client.h client.h)
