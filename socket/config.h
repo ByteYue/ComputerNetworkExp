@@ -1,19 +1,18 @@
 #pragma once
+#include <string>
+#include <netinet/in.h>
 
-#ifndef CONFIG_H
-#define CONFIG_H
-#include<string>
 using namespace std;
 
-class Config
-{
+class Config{
 public:
-    static const int BUFFERLENGTH;//maximun buffer length
-    static const int CONNECTIONNUMS;//maximum connection socket nums
-    static const string SERVERADDR;//IP address of server
-    static const int port;//server port
-    Config(/* args */);
+    static const int MAXCONNECTION; //maximum connection numbers
+    static const int BUFFERLENGTH;  //maximun buffer length
+    static const string SERVERADDRESS;  // server address
+    static const int PORT;          //server port
+    static const u_long BLOCKMODE;   //socket block MODE
+    static const string a;
+private:
+    Config();
     ~Config();
-
 };
-#endif // !CONFIG_H
