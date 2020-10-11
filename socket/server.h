@@ -15,6 +15,7 @@
 #include<list>
 #include<cmath>
 #include<unordered_map>
+#include "fileProcess.h"
 
 using namespace std;
 typedef int SOCKET;
@@ -47,7 +48,8 @@ public:
 	void RemoveClosedSession();										//将失效的SOCKET从会话socket队列删除
 	void ForwardMessage();											//向其他客户转发信息
 	void recvMessage(SOCKET s);										//从SOCKET s接受消息
-	void sendMessage(SOCKET s,string msg);							//向SOCKET s发送消息
+	void sendMessage(SOCKET s,string &msg);							//向SOCKET s发送消息
+	void sendOneMsg(SOCKET s,string &fh, int length);
 	string  GetClientAddress(SOCKET s);								//得到客户端IP地址
 	string  GetClientAddress(unordered_map<SOCKET,string> *maps,SOCKET s);	//得到客户端IP地址
 	void  ReceieveMessageFromClients();								//接受客户端发来的信息

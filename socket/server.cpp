@@ -1,6 +1,4 @@
 #include<iostream>
-#include<fstream>
-#include<sstream>
 #include<algorithm>
 #include"server.h"
 #include"config.h"
@@ -145,21 +143,37 @@ void Server::recvMessage(SOCKET socket){
 	}
 }
 //向SOCKET s发送消息
-void Server::sendMessage(SOCKET socket,string msg){
+void Server::sendMessage(SOCKET socket,string &msg){
 	fileHandler fh(msg);
-	int length=fh.fileToString();
-	int rtn = send(socket,fh.getSendMsg().c_str(),length,0);
-	//int rtn=1;
-	if(rtn == SOCKET_ERROR){//发送数据错误，把产生错误的会话socekt加入sessionsClosed队列
-//		cout << "Send to client failed!" << endl;
-//		cout << "A client leaves..." << endl;
-		//string s("来自" + this->GetClientAddress(this->clientAddrMaps,socket) + "的游客离开了聊天室,我们深深地凝望着他(她)的背影...\n");
-		string s(this->GetClientAddress(this->clientAddrMaps,socket)+"disconnect");
-		//this->AddRecvMessage(s);
-		this->AddClosedSession(socket);
-		cout << s<<endl;
+	string extName=fh.getFileExtensionName();
+	if(extName==".html"){
+	    int length=fh.htmlTransfer();
+	    string msgS=fh.getSendMsg();
+	    sendOneMsg(socket,msgS,length);
+	}
+	else if(extName==".jpg"){
+	    fh.imageTransfer();
+	    for(auto s:*fh.msgs){
+	        sendOneMsg(socket, s, s.length());
+	    }
 	}
 }
+
+//send one paragraph message
+void Server::sendOneMsg(SOCKET socket, string &fh, int length) {
+    int rtn = send(socket,fh.c_str(),length,0);
+    //int rtn=1;
+    if(rtn == SOCKET_ERROR){//发送数据错误，把产生错误的会话socekt加入sessionsClosed队列
+//		cout << "Send to client failed!" << endl;
+//		cout << "A client leaves..." << endl;
+        //string s("来自" + this->GetClientAddress(this->clientAddrMaps,socket) + "的游客离开了聊天室,我们深深地凝望着他(她)的背影...\n");
+        string s(this->GetClientAddress(this->clientAddrMaps,socket)+"disconnect");
+        //this->AddRecvMessage(s);
+        this->AddClosedSession(socket);
+        cout << s<<endl;
+    }
+}
+
 //向其他客户转发信息
 void Server::ForwardMessage(){
 	if(this->numOfSocketSignaled > 0){
