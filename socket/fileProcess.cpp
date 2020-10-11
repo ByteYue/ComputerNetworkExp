@@ -17,7 +17,7 @@ fileHandler::~fileHandler(){
 //get the request type and request filename
 void fileHandler::getFilename(){
     this->receiveMsg >> this->requestType >> this->filename;
-    
+
     this->filename=this->filename.substr(1);
 }
 //get the respond message
@@ -26,18 +26,26 @@ int fileHandler::fileToString(){
     string a="HTTP/1.1 200 ok\r\nConnection: keep-alive\r\n";
     string conLen;
     string conType="Content-Type: text/html\r\n";
+    /*
     FILE* fp;
     long size;
-    fp=fopen(this->filename.c_str(),"rb");
+    //fp=fopen(this->filename.c_str(),"rb");
+    fp=fopen("index.html", "r");
     if(fp==nullptr)
-        return-1;
+        return -1;
     fseek(fp, 0, SEEK_END);
     size=ftell(fp);//get the length
     conLen=to_string(size);
     fclose(fp);
-    fstream fs(this->filename.c_str());
+     */
+    long size;
+    fstream fs(this->filename.c_str(), ios::in);
     stringstream ss;
     ss<<fs.rdbuf();
+    fs.seekg(0,ios::end);
+    size=fs.tellg();
+    conLen=to_string(size);
+    fs.close();
     this->sendMsg=a+"Content-Length: "+conLen+"\r\n"+conType+"\r\n"+ss.str();
     return this->sendMsg.length();
 }

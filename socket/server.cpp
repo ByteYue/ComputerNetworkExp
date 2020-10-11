@@ -131,7 +131,8 @@ void Server::recvMessage(SOCKET socket){
 		this->AddClosedSession(socket);
 		//string s("来自" + this->GetClientAddress(this->clientAddrMaps,socket) + "的游客离开了聊天室,我们深深地凝望着他(她)的背影...\n");
 		string s(this->GetClientAddress(this->clientAddrMaps,socket)+"disconnect");
-		this->AddRecvMessage(s);
+		//没用的消息不用加进去
+		//this->AddRecvMessage(s);
 		cout << s <<endl;
 	}
 	else{
@@ -154,7 +155,7 @@ void Server::sendMessage(SOCKET socket,string msg){
 //		cout << "A client leaves..." << endl;
 		//string s("来自" + this->GetClientAddress(this->clientAddrMaps,socket) + "的游客离开了聊天室,我们深深地凝望着他(她)的背影...\n");
 		string s(this->GetClientAddress(this->clientAddrMaps,socket)+"disconnect");
-		this->AddRecvMessage(s);
+		//this->AddRecvMessage(s);
 		this->AddClosedSession(socket);
 		cout << s<<endl;
 	}
