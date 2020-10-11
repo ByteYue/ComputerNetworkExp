@@ -40,7 +40,7 @@ public:
 	int ServerStartup();		//初始化Server，包括创建SOCKET，绑定到IP和PORT
 	int ListenStartup();		//开始监听客户端请求
 	int Loop();					//循环执行"等待客户端请求"->“向其他客户转发信息”->"等待客户端消息"
-	void AddRecvMessage(string str);								//将收到的客户端消息保存到消息队列
+	void AddRecvMessage(const string &str);								//将收到的客户端消息保存到消息队列
 	void AddSession(SOCKET session);								//将新的会话socket加入队列
 	void AddClosedSession(SOCKET session);							//将失效的会话socket加入队列
 	void RemoveClosedSession(SOCKET closedSession);					//将失效的SOCKET从会话socket队列删除

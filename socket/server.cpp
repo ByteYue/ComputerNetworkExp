@@ -18,9 +18,9 @@ Server::Server()
 Server::~Server()
 {
 	//释放接受缓冲区
-	if(this->recvBuf != NULL){
+	if(this->recvBuf != nullptr){
 		delete this->recvBuf;
-		this->recvBuf = NULL;
+		this->recvBuf = nullptr;
 	}
 	//关闭server socket
 	if(this->srvSocket != NULL){
@@ -29,30 +29,30 @@ Server::~Server()
 		this->srvSocket = NULL;
 	}
 	//关闭所有会话socket并释放会话队列
-	if(this->sessions != NULL) {
+	if(this->sessions != nullptr) {
 		for(auto itor = this->sessions->begin();itor!= this->sessions->end();itor++)
 			close(*itor); //关闭会话
 		delete this->sessions;  //释放队列
-		this->sessions = NULL;
+		this->sessions = nullptr;
 	}
 	//释放失效会话队列
-	if(this->closedSessions != NULL){ 
+	if(this->closedSessions != nullptr){
 		for(auto itor = this->closedSessions->begin();itor!= this->closedSessions->end();itor++)
 			close(*itor); //关闭会话
 		delete this->closedSessions;//释放队列
-		this->closedSessions = NULL;
+		this->closedSessions = nullptr;
 	}
 	//释放接受消息队列
-	if(this->rcvedMessages != NULL){
+	if(this->rcvedMessages != nullptr){
 		this->rcvedMessages->clear(); //清除消息队列中的消息
 		delete this->rcvedMessages;	// 释放消息队列
-		this->rcvedMessages = NULL;
+		this->rcvedMessages = nullptr;
 	}
 	//释放客户端地址列表
-	if(this->clientAddrMaps != NULL){
+	if(this->clientAddrMaps != nullptr){
 		this->clientAddrMaps->clear();
 		delete this->clientAddrMaps;
-		this->clientAddrMaps = NULL;
+		this->clientAddrMaps = nullptr;
 	}
 	//WSACleanup(); //清理winsock 运行环境
     
@@ -93,7 +93,7 @@ int Server::ListenStartup(){
 	return 0;
 }
 //将收到的客户端消息保存到消息队列
-void Server::AddRecvMessage(string str){
+void Server::AddRecvMessage(const string &str){
 	if(!str.empty())
 		this->rcvedMessages->insert(this->rcvedMessages->end(),str);
 }
@@ -163,8 +163,8 @@ void Server::sendMessage(SOCKET socket,string msg){
 void Server::ForwardMessage(){
 	if(this->numOfSocketSignaled > 0){
 		if(!this->rcvedMessages->empty()){//如果消息队列不为空
-			for(list<string>::iterator msgItor = this->rcvedMessages->begin();msgItor != this->rcvedMessages->end();msgItor++){//对消息队列中的每一条消息
-				for(list<SOCKET>::iterator sockItor = this->sessions->begin();sockItor != this->sessions->end();sockItor++){//对会话socket队列中的每个socket
+			for(auto msgItor = this->rcvedMessages->begin();msgItor != this->rcvedMessages->end();msgItor++){//对消息队列中的每一条消息
+				for(auto sockItor = this->sessions->begin();sockItor != this->sessions->end();sockItor++){//对会话socket队列中的每个socket
 					if( FD_ISSET(*sockItor,&this->wfds)){ 
 						this->sendMessage(*sockItor,*msgItor);
 					}
@@ -198,9 +198,9 @@ int Server::AcceptRequestionFromClient(){
 			//将新的session加入会话队列
 			this->AddSession(newSession);
 			this->clientAddrMaps->insert(unordered_map<SOCKET,string>::value_type(newSession,this->GetClientAddress(newSession)));//保存地址
-			//string s("来自" + this->GetClientAddress(this->clientAddrMaps,newSession)  + "的游客进入到聊天室\n");
-			string s(this->GetClientAddress(this->clientAddrMaps,newSession));
-			this->AddRecvMessage(s);
+			string s("connection from " + this->GetClientAddress(this->clientAddrMaps,newSession)  + "\n");
+			//string s(this->GetClientAddress(this->clientAddrMaps,newSession));
+			//this->AddRecvMessage(s);
 			cout << s<<endl;
 		}
 	}
