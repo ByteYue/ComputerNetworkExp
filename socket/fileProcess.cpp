@@ -11,14 +11,14 @@ void fileHandler::test(){
 fileHandler::fileHandler(string &msg){
     this->receiveMsg=istringstream(msg);
     this->getFilename();
-    this->msgs= new list<string>();
+    //this->msgs= new list<string>();
 }
 
 fileHandler::~fileHandler(){
-    if(this->msgs!= nullptr) {
-        delete this->msgs;
-        this->msgs= nullptr;
-    }
+    //if(this->msgs!= nullptr) {
+    //    delete this->msgs;
+    //    this->msgs= nullptr;
+    //}
 }
 
 /*
@@ -60,10 +60,11 @@ int fileHandler::htmlTransfer(){
     return this->sendMsg.length();
 }
 
+/*
 void fileHandler::imageTransfer() {
     string a="HTTP/1.1 200 ok\r\nConnection: keep-alive\r\r";
     string conLen;
-    string conType="Content-Type: image/*\r\n";
+    string conType="Content-Type: image/jpeg\r\n";
     long size;
     fstream fs(this->filename.c_str(), ios::in | ios::binary);
     stringstream ss;
@@ -72,16 +73,19 @@ void fileHandler::imageTransfer() {
     size=fs.tellg();
     conLen=to_string(size);
     fs.close();
-    string sendMessage=a+"Content-Length: "+conLen+"\r\n"+conType+ss.str();
+    this->msgs->insert(this->msgs->end(), a+"Content-Length: "+conLen+"\r\n"+conType);
+    string sendMessage=ss.str();
+    //string sendMessage=a+"Content-Length: "+conLen+"\r\n"+conType+ss.str();
     int scale=0;
     //按1024一段发送,发送多段
     while (scale<size){
-        string temp=sendMessage.substr(scale,scale+1024);
+        string temp=sendMessage.substr(scale,1024);
         this->msgs->insert(this->msgs->end(), temp);
         scale+=1024;
     }
     this->msgs->insert(this->msgs->end(),string(sendMessage.substr(scale-1024)));
 }
+ */
 
 string fileHandler::getSendMsg(){
     return this->sendMsg;

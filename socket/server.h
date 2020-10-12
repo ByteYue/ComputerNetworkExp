@@ -21,6 +21,7 @@ using namespace std;
 typedef int SOCKET;
 #define SOCKET_ERROR -1
 #define INVALID_SOCKET -1
+#define SCALE   1024
 class Server
 {
 private:

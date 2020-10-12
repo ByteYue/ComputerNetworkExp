@@ -13,11 +13,12 @@ class fileHandler
 {
 private:
     string requestType;
-    string filename;
+
     string sendMsg;
     istringstream receiveMsg;
 public:
-    list<string>* msgs;
+    string filename;
+    //list<string>* msgs;
     void test();
     fileHandler(string &msg);
     ~fileHandler();

@@ -152,10 +152,30 @@ void Server::sendMessage(SOCKET socket,string &msg){
 	    sendOneMsg(socket,msgS,length);
 	}
 	else if(extName==".jpg"){
-	    fh.imageTransfer();
-	    for(auto s:*fh.msgs){
-	        sendOneMsg(socket, s, s.length());
-	    }
+        string head="HTTP/1.1 200 ok\r\nConnection: keep-alive\r\n";
+        string conLen;
+		//TODO SB错误,content-type这一行下面要再接一个空行后才是数据段
+        string conType="Content-Type: image/jpeg\r\n\r\n";
+        char buffer[SCALE];
+        long size;
+        long cur,last;
+        int rtn;
+        memset(buffer,'\0',SCALE*sizeof(char));
+	    fstream fs(fh.filename.c_str(), ios::in|ios::binary);
+        fs.seekg(0,ios::end);
+        size=fs.tellg();
+        conLen=to_string(size);
+        fs.seekg(0, ios::beg);
+        head=head+"Content-Length: "+conLen+"\r\n"+conType;
+        this->sendOneMsg(socket,head,head.size());
+        while (!fs.eof()){
+            last=fs.tellg();
+            fs.read(buffer,SCALE);
+            cur=fs.tellg();
+            send(socket,buffer,cur-last,0);
+            memset(buffer,'\0',SCALE*sizeof(char));
+        }
+        memset(buffer,'\0',SCALE);
 	}
 }
 
