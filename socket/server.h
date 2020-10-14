@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 
 #ifndef SERVER_H
 #define SERVER_H
@@ -15,9 +15,14 @@
 #include<list>
 #include<cmath>
 #include<unordered_map>
-#include "fileProcess.h"
+#include"fileProcess.h"
+//using FileProcess::fileHandler;
+using std::list;
+using std::unordered_map;
+using std::string;
+//class fileHandler;
 
-using namespace std;
+//using FileHandler::fileHandler;
 typedef int SOCKET;
 #define SOCKET_ERROR -1
 #define INVALID_SOCKET -1
@@ -38,7 +43,6 @@ private:
 public:
 	Server();
 	~Server();
-	//int WinsockStartup(); no need in Linux		//初始化Winsock
 	int ServerStartup();		//初始化Server，包括创建SOCKET，绑定到IP和PORT
 	int ListenStartup();		//开始监听客户端请求
 	int Loop();					//循环执行"等待客户端请求"->“向其他客户转发信息”->"等待客户端消息"
@@ -55,5 +59,9 @@ public:
 	string  GetClientAddress(unordered_map<SOCKET,string> *maps,SOCKET s);	//得到客户端IP地址
 	void  ReceieveMessageFromClients();								//接受客户端发来的信息
 	int AcceptRequestionFromClient();								//等待客户端连接请求
+	void sendHtml(fileHandler& fh, SOCKET socket);                  //send html file to client socket
+    void sendImage(fileHandler& fh, SOCKET socket, string &extName);//send image file to client socket
+    void notSupported();                                            //not supportable extensional name
+    void notFound();                                                //file name not found
 };
 #endif // !SERVER_H

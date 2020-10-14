@@ -2,8 +2,8 @@
 #include<algorithm>
 #include"server.h"
 #include"config.h"
-#include"fileProcess.h"
-
+//#include"fileProcess.h"
+//using FileProcess::fileHandler;
 Server::Server()
 {
 	this->recvBuf = new char[Config::BUFFERLENGTH]; //初始化接受缓冲区
@@ -17,7 +17,7 @@ Server::~Server()
 {
 	//释放接受缓冲区
 	if(this->recvBuf != nullptr){
-		delete this->recvBuf;
+		delete[] this->recvBuf;
 		this->recvBuf = nullptr;
 	}
 	//关闭server socket
@@ -127,7 +127,6 @@ void Server::recvMessage(SOCKET socket){
 	int receivedBytes = recv(socket,this->recvBuf,Config::BUFFERLENGTH,0);
 	if(receivedBytes == SOCKET_ERROR || receivedBytes == 0){//接受数据错误，把产生错误的会话socekt加入sessionsClosed队列
 		this->AddClosedSession(socket);
-		//string s("来自" + this->GetClientAddress(this->clientAddrMaps,socket) + "的游客离开了聊天室,我们深深地凝望着他(她)的背影...\n");
 		string s(this->GetClientAddress(this->clientAddrMaps,socket)+"disconnect");
 		//没用的消息不用加进去
 		//this->AddRecvMessage(s);
@@ -142,20 +141,74 @@ void Server::recvMessage(SOCKET socket){
 		memset(this->recvBuf,'\0',Config::BUFFERLENGTH);//清除接受缓冲区
 	}
 }
+
+void Server::sendHtml(fileHandler &fh, SOCKET socket) {
+    if(!fh.htmlTransfer()){//没有找到
+        this->notFound();
+    }
+    else
+        this->sendOneMsg(socket,fh.sendMsg, fh.sendMsg.length());
+}
+
+void Server::sendImage(fileHandler &fh, SOCKET socket, string &extName) {
+    fstream fs(fh.filename.c_str(), ios::in|ios::binary);
+    if(!fs.is_open())//找不到filename
+        this->notFound();
+    else{
+        string conType = fileHandler::respondFileType.at(extName);//search the correspond value of key"extName"
+        string head="HTTP/1.1 200 ok\r\nConnection: keep-alive\r\n";
+        string conLen;
+        //TODO SB错误,content-type这一行下面要再接一个空行后才是数据段
+        //string conType="Content-Type: image/jpeg\r\n\r\n";
+        char buffer[SCALE];
+        long size;
+        long cur,last;
+        int rtn;
+        memset(buffer,'\0',SCALE*sizeof(char));
+        fs.seekg(0,ios::end);
+        size=fs.tellg();
+        conLen=to_string(size);
+        fs.seekg(0, ios::beg);
+        head=head+"Content-Length: "+conLen+"\r\n"+conType;
+        this->sendOneMsg(socket,head,head.size());
+        while (!fs.eof()){
+            last=fs.tellg();
+            fs.read(buffer,SCALE);
+            cur=fs.tellg();
+            send(socket,buffer,cur-last,0);
+            memset(buffer,'\0',SCALE*sizeof(char));
+        }
+    }
+}
+
+void Server::notFound() {//error code 404
+
+}
+
+void Server::notSupported() {//error code 400
+
+}
+
 //向SOCKET s发送消息
 void Server::sendMessage(SOCKET socket,string &msg){
 	fileHandler fh(msg);
 	string extName=fh.getFileExtensionName();
-	if(extName==".html"){
-	    int length=fh.htmlTransfer();
-	    string msgS=fh.getSendMsg();
-	    sendOneMsg(socket,msgS,length);
+	if(fileHandler::respondFileType.find(extName)==fileHandler::respondFileType.end())//不支持的后缀名
+        this->notSupported();
+	else if(extName==".html"){
+	    //int length=fh.htmlTransfer();
+	    //string msgS=fh.getSendMsg();
+	    //sendOneMsg(socket,msgS,length);
+        this->sendHtml(fh, socket);
 	}
-	else if(extName==".jpg"){
+	else if(extName==".jpg" || extName=="png" || extName=="gif"){
+	    this->sendImage(fh,socket, extName);
+        /*
+        string conType = fileHandler::respondFileType.at(extName);
         string head="HTTP/1.1 200 ok\r\nConnection: keep-alive\r\n";
         string conLen;
 		//TODO SB错误,content-type这一行下面要再接一个空行后才是数据段
-        string conType="Content-Type: image/jpeg\r\n\r\n";
+        //string conType="Content-Type: image/jpeg\r\n\r\n";
         char buffer[SCALE];
         long size;
         long cur,last;
@@ -175,7 +228,8 @@ void Server::sendMessage(SOCKET socket,string &msg){
             send(socket,buffer,cur-last,0);
             memset(buffer,'\0',SCALE*sizeof(char));
         }
-        memset(buffer,'\0',SCALE);
+         */
+        //memset(buffer,'\0',SCALE);
 	}
 }
 

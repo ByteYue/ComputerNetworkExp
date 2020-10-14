@@ -15,3 +15,4 @@ const int Config::MAXCONNECTION=5;
 const int Config::BUFFERLENGTH=600;
 const int Config::PORT=5050;
 const u_long Config::BLOCKMODE=1;
+

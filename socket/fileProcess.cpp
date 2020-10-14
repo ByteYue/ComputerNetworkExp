@@ -1,5 +1,7 @@
 #include"fileProcess.h"
 #include <algorithm>
+
+//using FileProcess::fileHandler;
 //test function
 void fileHandler::test(){
     cout<<this->requestType<<endl;
@@ -21,15 +23,6 @@ fileHandler::~fileHandler(){
     //}
 }
 
-/*
-//hand all the procedure
-int fileHandler::handler(const string &extName) {
-    if(extName==".html")
-        return this->htmlTransfer();
-    else if(extName==".jpg")
-        return this->imageTransfer();
-}
- */
 
 //get the request type and request filename
 void fileHandler::getFilename(){
@@ -42,23 +35,37 @@ string fileHandler::getFileExtensionName() {
     int pos=this->filename.find('.',0);
     return this->filename.substr(pos);
 }
+
+
 //get the respond message
-int fileHandler::htmlTransfer(){
-    //this->getFilename();
-    string a="HTTP/1.1 200 ok\r\nConnection: keep-alive\r\n";
-    string conLen;
-    string conType="Content-Type: text/html\r\n";
-    long size;
+bool fileHandler::htmlTransfer(){
     fstream fs(this->filename.c_str(), ios::in|ios::binary);
-    stringstream ss;
-    ss<<fs.rdbuf();
-    fs.seekg(0,ios::end);
-    size=fs.tellg();
-    conLen=to_string(size);
-    fs.close();
-    this->sendMsg=a+"Content-Length: "+conLen+"\r\n"+conType+"\r\n"+ss.str();
-    return this->sendMsg.length();
+    if(!fs.is_open())
+        return false;
+    //this->getFilename();
+    else{
+        string a="HTTP/1.1 200 ok\r\nConnection: keep-alive\r\n";
+        string conLen;
+        string conType="Content-Type: text/html\r\n";
+        long size;
+
+        std::stringstream ss;
+        ss<<fs.rdbuf();
+        fs.seekg(0,ios::end);
+        size=fs.tellg();
+        conLen=std::to_string(size);
+        fs.close();
+        this->sendMsg=a+"Content-Length: "+conLen+"\r\n"+conType+"\r\n"+ss.str();
+        return true;
+    }
 }
+
+const unordered_map<string ,string >fileHandler::respondFileType={
+        {".html","Content-Type: text/html\r\n\r\n"},
+        {".xml", "Content-Type: application/xml\r\n\r\n"},
+        {".jpg","Content-Type: image/jpeg\r\n\r\n"},
+        {".png","Content-Type: image/png\r\n\r\n"}
+};
 
 /*
 void fileHandler::imageTransfer() {

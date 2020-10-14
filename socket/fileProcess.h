@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #ifndef FILEPROCESS_H
 #define FILEPROCESS_H
 #include<iostream>
@@ -7,16 +7,23 @@
 #include<string>
 #include<cstring>
 #include<list>
+#include<unordered_map>
 
-using namespace std;
+using std::string;
+using std::istringstream;
+using std::unordered_map;
+using std::cout;
+using std::endl;
+using std::fstream;
+using std::ios;
+using std::end;
 class fileHandler
 {
 private:
-    string requestType;
-
-    string sendMsg;
     istringstream receiveMsg;
 public:
+    string requestType;
+    string sendMsg;
     string filename;
     //list<string>* msgs;
     void test();
@@ -28,10 +35,12 @@ public:
     void getFilename();
     string getFileExtensionName();
     //transfer image
-    void imageTransfer();
+    //void imageTransfer();
     //transfer html/text
-    int htmlTransfer();
+    bool htmlTransfer();
     string getSendMsg();
+    static const unordered_map<string ,string >respondFileType;
+    //bool fileExist();
 };
 
 #endif // !FILEPROCESS_H
