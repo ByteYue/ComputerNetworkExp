@@ -30,6 +30,14 @@ void fileHandler::getFilename(){
     this->filename=this->filename.substr(1);
 }
 
+//redirect to www.bilibili.com
+void fileHandler::redirect() {
+    string a="HTTP/1.1 307 Moved Permanently\r\n";
+    string location="Location: https://www.bilibili.com\r\n";
+    string reason="Non-Authoritative-Reason: HSTS\r\n";
+    this->sendMsg=a+location+reason+"\r\n";
+}
+
 //get the file extension name
 string fileHandler::getFileExtensionName() {
     int pos=this->filename.find('.',0);
@@ -57,6 +65,8 @@ void fileHandler::notFound() {
     string head="HTTP/1.1 404 Not Found\r\n\r\n";
     this->sendMsg=head;
      */
+    this->redirect();
+    /*
     this->filename="404.html";
     fstream fs(this->filename.c_str(), ios::in|ios::binary);
     string a="HTTP/1.1 404 Not Found\r\n";
@@ -70,8 +80,6 @@ void fileHandler::notFound() {
     conLen=std::to_string(size);
     fs.close();
     this->sendMsg=a+"Content-Length: "+conLen+"\r\n"+conType+"\r\n"+ss.str();
-    /*
-
      */
 }
 

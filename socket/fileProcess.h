@@ -40,6 +40,7 @@ public:
     //transfer html/text
     void notFound();
     void notSupport();
+    void redirect();
     bool htmlTransfer();
     string getSendMsg();
 
