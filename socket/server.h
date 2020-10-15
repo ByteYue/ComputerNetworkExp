@@ -55,13 +55,14 @@ public:
 	void recvMessage(SOCKET s);										//从SOCKET s接受消息
 	void sendMessage(SOCKET s,string &msg);							//向SOCKET s发送消息
 	void sendOneMsg(SOCKET s,string &fh, int length);
-	string  GetClientAddress(SOCKET s);								//得到客户端IP地址
+	//string  GetClientAddress(SOCKET s);								//得到客户端IP地址
+    std::pair<string ,int> GetClientAddress(SOCKET s);
 	string  GetClientAddress(unordered_map<SOCKET,string> *maps,SOCKET s);	//得到客户端IP地址
 	void  ReceieveMessageFromClients();								//接受客户端发来的信息
 	int AcceptRequestionFromClient();								//等待客户端连接请求
-	void sendHtml(fileHandler& fh, SOCKET socket);                  //send html file to client socket
-    void sendImage(fileHandler& fh, SOCKET socket, string &extName);//send image file to client socket
-    void notSupported();                                            //not supportable extensional name
-    void notFound();                                                //file name not found
+	bool sendHtml(fileHandler& fh, SOCKET socket);                  //send html file to client socket
+    bool sendImage(fileHandler& fh, SOCKET socket, string &extName);//send image file to client socket
+    void notSupported(SOCKET socket,fileHandler& fh);                                            //not supportable extensional name
+    void notFound(SOCKET socket, fileHandler& fh);                                                //file name not found
 };
 #endif // !SERVER_H

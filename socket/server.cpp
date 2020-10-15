@@ -137,23 +137,40 @@ void Server::recvMessage(SOCKET socket){
 		//string s("来自" +  this->GetClientAddress(this->clientAddrMaps,socket) + "的游客说:\n" + recvBuf + "\n");
 		string s(recvBuf);
 		this->AddRecvMessage(s); //将收到的消息加入到消息队列
-		cout << s<<endl;
+		fileHandler fh(s);
+		cout <<"Request Type:"+fh.requestType<<endl;
+		cout <<"Request URL:"<<fh.filename<<endl;
+		cout <<"Protocol Version:"<<fh.protocolVersion<<endl;
+		cout <<"Request header:\n"+ s<<endl;
 		memset(this->recvBuf,'\0',Config::BUFFERLENGTH);//清除接受缓冲区
 	}
 }
 
-void Server::sendHtml(fileHandler &fh, SOCKET socket) {
+bool Server::sendHtml(fileHandler &fh, SOCKET socket) {
+    /*
     if(!fh.htmlTransfer()){//没有找到
         this->notFound();
+        return false;
     }
     else
+    {
         this->sendOneMsg(socket,fh.sendMsg, fh.sendMsg.length());
+        return true;
+    }
+     */
+    bool done=fh.htmlTransfer();//return whether the html transfer succeed or not
+    this->sendOneMsg(socket,fh.sendMsg,fh.sendMsg.length());
+    return done;
 }
 
-void Server::sendImage(fileHandler &fh, SOCKET socket, string &extName) {
+bool Server::sendImage(fileHandler &fh, SOCKET socket, string &extName)
+{
     fstream fs(fh.filename.c_str(), ios::in|ios::binary);
     if(!fs.is_open())//找不到filename
-        this->notFound();
+    {
+        this->notFound(socket, fh);
+        return false;
+    }
     else{
         string conType = fileHandler::respondFileType.at(extName);//search the correspond value of key"extName"
         string head="HTTP/1.1 200 ok\r\nConnection: keep-alive\r\n";
@@ -178,15 +195,19 @@ void Server::sendImage(fileHandler &fh, SOCKET socket, string &extName) {
             send(socket,buffer,cur-last,0);
             memset(buffer,'\0',SCALE*sizeof(char));
         }
+        return false;
     }
 }
 
-void Server::notFound() {//error code 404
-
+void Server::notFound(SOCKET socket, fileHandler& fh) {//handle error code 404
+    fh.notFound();
+    sendOneMsg(socket,fh.sendMsg,fh.sendMsg.length());
 }
 
-void Server::notSupported() {//error code 400
-
+void Server::notSupported(SOCKET socket,fileHandler &fh) {//handle error code 400
+    fh.notSupport();
+    this->sendOneMsg(socket,fh.sendMsg,fh.sendMsg.length());
+    cout<<"Handled one bad request"<<endl;
 }
 
 //向SOCKET s发送消息
@@ -194,42 +215,16 @@ void Server::sendMessage(SOCKET socket,string &msg){
 	fileHandler fh(msg);
 	string extName=fh.getFileExtensionName();
 	if(fileHandler::respondFileType.find(extName)==fileHandler::respondFileType.end())//不支持的后缀名
-        this->notSupported();
-	else if(extName==".html"){
-	    //int length=fh.htmlTransfer();
-	    //string msgS=fh.getSendMsg();
-	    //sendOneMsg(socket,msgS,length);
-        this->sendHtml(fh, socket);
+        this->notSupported(socket,fh);
+	else if(extName==".html"){//处理html文本
+        if(this->sendHtml(fh, socket))
+            cout<<"request for "+fh.filename+" done"<<endl;
+        else
+            cout<<"request for "+fh.filename+" failed"<<endl;
 	}
-	else if(extName==".jpg" || extName=="png" || extName=="gif"){
+	else if(extName==".jpg" || extName=="png" || extName=="gif"){//处理图片
 	    this->sendImage(fh,socket, extName);
-        /*
-        string conType = fileHandler::respondFileType.at(extName);
-        string head="HTTP/1.1 200 ok\r\nConnection: keep-alive\r\n";
-        string conLen;
-		//TODO SB错误,content-type这一行下面要再接一个空行后才是数据段
-        //string conType="Content-Type: image/jpeg\r\n\r\n";
-        char buffer[SCALE];
-        long size;
-        long cur,last;
-        int rtn;
-        memset(buffer,'\0',SCALE*sizeof(char));
-	    fstream fs(fh.filename.c_str(), ios::in|ios::binary);
-        fs.seekg(0,ios::end);
-        size=fs.tellg();
-        conLen=to_string(size);
-        fs.seekg(0, ios::beg);
-        head=head+"Content-Length: "+conLen+"\r\n"+conType;
-        this->sendOneMsg(socket,head,head.size());
-        while (!fs.eof()){
-            last=fs.tellg();
-            fs.read(buffer,SCALE);
-            cur=fs.tellg();
-            send(socket,buffer,cur-last,0);
-            memset(buffer,'\0',SCALE*sizeof(char));
-        }
-         */
-        //memset(buffer,'\0',SCALE);
+        cout<<"request for "+fh.filename+" done"<<endl;
 	}
 }
 
@@ -286,11 +281,12 @@ int Server::AcceptRequestionFromClient(){
 			}
 			//将新的session加入会话队列
 			this->AddSession(newSession);
-			this->clientAddrMaps->insert(unordered_map<SOCKET,string>::value_type(newSession,this->GetClientAddress(newSession)));//保存地址
-			string s("connection from " + this->GetClientAddress(this->clientAddrMaps,newSession)  + "\n");
+			auto p=this->GetClientAddress(newSession);
+			this->clientAddrMaps->insert(unordered_map<SOCKET,string>::value_type(newSession,p.first));//保存地址
+			//string s("connection from " + this->GetClientAddress(this->clientAddrMaps,newSession)  + "\n")
 			//string s(this->GetClientAddress(this->clientAddrMaps,newSession));
 			//this->AddRecvMessage(s);
-			cout << s<<endl;
+			cout <<"Connection from IP Address "+p.first+" Port "<<p.second<<endl;
 		}
 	}
 	return 0;
@@ -307,16 +303,18 @@ void Server::ReceieveMessageFromClients(){
 	}
 }
 //得到客户端IP地址
-string  Server::GetClientAddress(SOCKET s){
+std::pair<string,int> Server::GetClientAddress(SOCKET s){
 	string clientAddress; //clientAddress是个空字符串， clientAddress.empty() is true
 	sockaddr_in clientAddr;
 	int rtn;
+	int port;
 	socklen_t nameLen = sizeof(clientAddr);
 	rtn = getsockname(s,(sockaddr*)&clientAddr,&nameLen);
 	if(rtn != SOCKET_ERROR){
 		clientAddress += inet_ntoa(clientAddr.sin_addr);
+		port=ntohs(clientAddr.sin_port);
 	}
-	return clientAddress; 
+	return {clientAddress, port};
 }
 //得到客户端IP地址
 string  Server::GetClientAddress(unordered_map<SOCKET,string> *maps,SOCKET s){

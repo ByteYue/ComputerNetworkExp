@@ -24,6 +24,7 @@ private:
 public:
     string requestType;
     string sendMsg;
+    string protocolVersion;
     string filename;
     //list<string>* msgs;
     void test();
@@ -37,8 +38,11 @@ public:
     //transfer image
     //void imageTransfer();
     //transfer html/text
+    void notFound();
+    void notSupport();
     bool htmlTransfer();
     string getSendMsg();
+
     static const unordered_map<string ,string >respondFileType;
     //bool fileExist();
 };
