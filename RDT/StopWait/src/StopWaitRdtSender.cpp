@@ -40,7 +40,7 @@ bool StopWaitRdtSender::send(const Message &message) {
 }
 
 void StopWaitRdtSender::receive(const Packet &ackPkt) {
-	if (this->waitingState == true) {//如果发送方处于等待ack的状态，作如下处理；否则什么都不做
+	if (this->waitingState) {//如果发送方处于等待ack的状态，作如下处理；否则什么都不做
 		//检查校验和是否正确
 		int checkSum = pUtils->calculateCheckSum(ackPkt);
 
