@@ -2,3 +2,7 @@
 cmake-build-debug/
 build/
 .vscode/
+bin/
+lib/
+*.a
+*.txt
