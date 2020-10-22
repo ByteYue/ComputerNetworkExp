@@ -20,7 +20,9 @@ struct  Configuration{
 /**
 	第五层应用层的消息
 */
-struct  Message {
+//struct
+class   Message {
+public:
 	char data[Configuration::PAYLOAD_SIZE];		//payload
 
 	Message();
@@ -34,7 +36,9 @@ struct  Message {
 /**
 	第四层运输层报文段
 */
-struct  Packet {
+//struct
+class   Packet {
+public:
 	int seqnum;										//序号
 	int acknum;										//确认号
 	int checksum;									//校验和

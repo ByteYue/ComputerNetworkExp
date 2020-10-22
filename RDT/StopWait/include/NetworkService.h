@@ -7,8 +7,9 @@
 
 
 //定义NetworkService抽象类，规定了学生实现的RdtSender和RdtReceiver可以调用的的接口方法
-struct  NetworkService {
-
+//struct
+class   NetworkService {
+public:
 	virtual void startTimer(RandomEventTarget target, int timeOut,int seqNum) = 0;	//发送方启动定时器，由RdtSender调用
 	virtual void stopTimer(RandomEventTarget target,int seqNum) = 0;				//发送方停止定时器，由RdtSender调用
 	virtual void sendToNetworkLayer(RandomEventTarget target, Packet pkt) = 0;		//将数据包发送到网络层，由RdtSender或RdtReceiver调用

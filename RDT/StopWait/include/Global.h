@@ -3,10 +3,10 @@
 
 #include "Tool.h"
 #include "NetworkService.h"
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
-#include <string.h>
+#include <cstring>
 using namespace std;
 
 extern  Tool *pUtils;						//指向唯一的工具类实例，只在main函数结束前delete
