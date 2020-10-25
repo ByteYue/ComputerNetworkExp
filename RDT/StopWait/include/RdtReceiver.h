@@ -12,11 +12,5 @@ struct  RdtReceiver
 	virtual ~RdtReceiver() = 0;
 };
 
-//class  RdtReceiver
-//{
-//public:
-//    virtual void receive(const Packet &packet) = 0;		//接收报文，将被NetworkService调用
-//    virtual ~RdtReceiver() = 0;
-//};
 
 #endif

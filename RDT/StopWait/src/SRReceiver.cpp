@@ -5,6 +5,8 @@
 #include "SRReceiver.h"
 
 SRReceiver::SRReceiver() : rcv_base(1) {
+    this->buffers = new std::vector<Packet*>();
+    this->isReceived = new std::vector<int>();
     // 填充空的数据
     for (int i = 0; i < GBN_WINDOW_SIZE; i++) {
         push_empty_packet();
@@ -74,7 +76,7 @@ void SRReceiver::receive(const Packet &packet) {
             if (isReceived->at(index) == UNKNOWN) {
                 // 如果之前没有收到，更改状态并存储
 //                cout << "收到paket的时候first packetState.size = " << packetState.size() << endl;
-                *isReceived[index] = RECEIVED;
+                (*isReceived)[index] = RECEIVED;
 //                cout << "计算出来的index = " << index << "实际上的seq = " << packet.seqnum;
                 Packet *temp = buffers->at(index);
                 // 复制到对应的位置
@@ -107,7 +109,7 @@ void SRReceiver::receive(const Packet &packet) {
                 // 上交报文，并填充新的空数据
 //                cout << "上交了一个数据" << endl;
                 Message msg;
-                memcpy(msg.data, buffers.at(0)->payload, sizeof(buffers.at(0)->payload));
+                memcpy(msg.data, buffers->at(0)->payload, sizeof(buffers->at(0)->payload));
                 pns->delivertoAppLayer(RECEIVER, msg);
                 isReceived->erase(isReceived->begin());
                 buffers->erase(buffers->begin());
@@ -123,7 +125,7 @@ void SRReceiver::receive(const Packet &packet) {
 
 void SRReceiver::push_empty_packet() {
     // 填充新的数据到缓冲区，每个字段的值并不重要
-    Packet *packet = new Packet();
+    auto *packet = new Packet();
     buffers->push_back(packet);
     isReceived->push_back(UNKNOWN);
     packet = nullptr;
