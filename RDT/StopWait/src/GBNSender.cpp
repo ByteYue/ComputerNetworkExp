@@ -39,7 +39,8 @@ Packet* makePkt(int nextseqnum, const Message &message){
  * 检测是否能发送应用层数据message
  * */
 bool GBNSender::send(const Message &message) {
-    if(this->packets->size()<=GBN_WINDOW_SIZE){
+
+    if(this->packets->size()<GBN_WINDOW_SIZE){
         auto packet = makePkt(nextseqnum,message);
         this->packets->push_back(packet);// get the send message
         pUtils->printPacket("Sender sends message:", *packet);

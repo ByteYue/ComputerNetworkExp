@@ -10,7 +10,7 @@ class GBNReceiver: public RdtReceiver{
 
 private:
     int expectSequenceNumberRcvd;	// 期待收到的下一个报文序号
-    Packet lastAckPkt;				//上次发送的确认报文
+    Packet lastAckPkt;				//上次发送的确认报文,Packet.seqnum在GBNReceiver里不需要使用
 public:
     GBNReceiver();
     ~GBNReceiver() override;

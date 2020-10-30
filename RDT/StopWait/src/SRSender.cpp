@@ -30,7 +30,7 @@ Packet *SRSender::makePkt(int nextseqnum, const Message &message){
 }
 
 bool SRSender::send(const Message &message) {
-    if(this->packets->size()<=GBN_WINDOW_SIZE){
+    if(this->packets->size()<GBN_WINDOW_SIZE){
         auto packet = makePkt(nextseqnum,message);
         this->packets->push_back(packet);// get the send message
         this->isReceived->push_back(UNKNOWN);
@@ -54,9 +54,9 @@ void SRSender::receive(const Packet &ackPkt) {
     if (checkSum == ackPkt.checksum) {
         if (((nextseqnum > base) &&
         (ackPkt.acknum >= base) &&
-        (ackPkt.acknum < nextseqnum))
+        (ackPkt.acknum < nextseqnum))   //range(base,nextseqnum)
         || ((nextseqnum < base) &&
-        ((ackPkt.acknum < nextseqnum) ||
+        ((ackPkt.acknum < nextseqnum) ||    //range nextseqnum)...(base
         (ackPkt.acknum >= base)))) {
             // 落在当前窗口
             // 停止计时
