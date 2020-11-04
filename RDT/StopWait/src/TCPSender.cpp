@@ -4,7 +4,6 @@
 
 #include <cstring>
 #include <Global.h>
-//#include <assert.h>
 #include "TCPSender.h"
 bool TCPSender::getWaitingState() {
     return waitingState;

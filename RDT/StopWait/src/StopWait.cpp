@@ -11,17 +11,19 @@
 #include "GBNReceiver.h"
 #include "SRSender.h"
 #include "SRReceiver.h"
+#include "TCPSender.h"
+#include "TCPReceiver.h"
 
 int main(int argc, char* argv[])
 {
 	//RdtSender *ps = new StopWaitRdtSender();
 	//RdtReceiver * pr = new StopWaitRdtReceiver();
-	RdtSender *ps = new GBNSender();
-	RdtReceiver *pr = new GBNReceiver();
+	//RdtSender *ps = new GBNSender();
+	//RdtReceiver *pr = new GBNReceiver();
 	//RdtSender *ps = new SRSender();
 	//RdtReceiver *pr = new SRReceiver();
-	//RdtSender *ps = new SRSender();
-	//RdtReceiver *pr = new SRReceiver();
+	RdtSender *ps = new TCPSender;
+	RdtReceiver *pr = new TCPReceiver();
 
 
 	pns->setRunMode(0);  //VERBOS模式
