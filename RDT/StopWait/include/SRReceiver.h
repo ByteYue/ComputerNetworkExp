@@ -8,7 +8,7 @@
 #include <vector>
 class SRReceiver :public RdtReceiver {
 private:
-    Packet lastAckPkt;
+    Packet lastAckPkt;//记录刚刚接受到的报文的信息(ACK等)
     enum {RECEIVED, UNKNOWN};
     std::vector<Packet *> *buffers;
     std::vector<int> *isReceived;
